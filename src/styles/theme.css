@@ -1,0 +1,174 @@
+/*
+  Brand: Baba-Jay Paints — soft pink and white, with a deep plum/rose
+  for text and accents so it stays readable rather than washed out.
+  Variable NAMES are kept the same as before (--plum, --bubblegum, etc.)
+  so every page component that references them updates automatically —
+  only the values (and, now, a dark-mode variant) change here.
+*/
+:root {
+  --plum: #4a2036;         /* deep plum — headings, primary text */
+  --bubblegum: #e75480;    /* rose pink — primary actions, active nav, badges */
+  --blush: #fff5f8;        /* very light pink — page background */
+  --cream: #ffffff;        /* white — card/surface background */
+  --rose-dark: #c43f68;    /* deeper rose — hover states */
+  --steel: #8a6d78;        /* muted rose-grey — secondary text */
+  --border-soft: #f3d9e3;  /* soft pink border/divider */
+  --sidebar-bg: #ffffff;
+  --text-main: #3a2530;
+
+  --bs-primary: var(--bubblegum);
+  --bs-primary-rgb: 231, 84, 128;
+
+  --font-display: "Oswald", sans-serif;
+  --font-body: "Inter", sans-serif;
+}
+
+/* Dark mode — same variable names, different values. Toggled by
+   setting data-theme="dark" on <html> (see ThemeContext). */
+[data-theme="dark"] {
+  --plum: #f7e9f0;
+  --bubblegum: #f28fb0;
+  --blush: #221820;
+  --cream: #2c2129;
+  --rose-dark: #f7b3c9;
+  --steel: #c9a9b6;
+  --border-soft: #3d2e37;
+  --sidebar-bg: #1c1319;
+  --text-main: #f2e3ea;
+
+  --bs-primary: var(--bubblegum);
+  --bs-primary-rgb: 242, 143, 176;
+}
+
+body {
+  background: var(--blush);
+  font-family: var(--font-body);
+  color: var(--text-main);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+h1, h2, h3, h4, h5, .navbar-brand, .brand-mark {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.btn-primary {
+  background-color: var(--bubblegum);
+  border-color: var(--bubblegum);
+  color: white;
+  font-weight: 600;
+}
+.btn-primary:hover {
+  background-color: var(--rose-dark);
+  border-color: var(--rose-dark);
+}
+
+.navbar-brand {
+  color: var(--bubblegum) !important;
+  font-weight: 700;
+}
+
+/* --- Dark-mode-aware overrides for Bootstrap's own classes --- */
+/* Bootstrap's utility classes (bg-white, card, table, etc.) use fixed
+   colors, not our variables, so they need explicit dark overrides. */
+[data-theme="dark"] .bg-white { background-color: var(--cream) !important; }
+[data-theme="dark"] .card { background-color: var(--cream); color: var(--text-main); border-color: var(--border-soft); }
+[data-theme="dark"] .card-header { background-color: var(--sidebar-bg) !important; color: var(--text-main); border-color: var(--border-soft); }
+[data-theme="dark"] .table { color: var(--text-main); }
+[data-theme="dark"] .table > :not(caption) > * > * { background-color: var(--cream); color: var(--text-main); border-color: var(--border-soft); }
+[data-theme="dark"] .table-hover > tbody > tr:hover > * { background-color: var(--sidebar-bg); }
+[data-theme="dark"] .form-control, [data-theme="dark"] .form-select {
+  background-color: var(--cream); color: var(--text-main); border-color: var(--border-soft);
+}
+[data-theme="dark"] .form-control::placeholder { color: var(--steel); }
+[data-theme="dark"] .list-group-item { background-color: var(--cream); color: var(--text-main); border-color: var(--border-soft); }
+[data-theme="dark"] .text-muted { color: var(--steel) !important; }
+[data-theme="dark"] header.bg-white { background-color: var(--cream) !important; }
+[data-theme="dark"] .nav-tabs { border-color: var(--border-soft); }
+[data-theme="dark"] .nav-tabs .nav-link { color: var(--steel); }
+[data-theme="dark"] .badge.bg-light { background-color: var(--sidebar-bg) !important; color: var(--text-main) !important; border-color: var(--border-soft) !important; }
+[data-theme="dark"] .form-label { color: var(--text-main); }
+
+/* Theme toggle button */
+.theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--border-soft);
+  color: var(--text-main);
+  border-radius: 6px;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.theme-toggle-btn:hover { background: var(--blush); }
+
+/* Repeating tread-style texture — reused as a subtle background watermark. */
+.tread-texture {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.06) 0px,
+    rgba(255, 255, 255, 0.06) 2px,
+    transparent 2px,
+    transparent 14px
+  );
+}
+
+/* Brand motto watermark — large, faint, rotated text used once on the
+   login hero as a background flourish. Not meant to be read at a
+   glance; it's texture, the way a printed label repeats a wordmark. */
+.motto-watermark {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.14);
+  white-space: nowrap;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+
+/* Left-border accent for cards. */
+.card-accent-red { border-left: 4px solid var(--bubblegum); }
+.card-accent-charcoal { border-left: 4px solid var(--plum); }
+
+/* --- Alerts: bold accent bar + faint diagonal tint instead of a flat wash --- */
+.alert {
+  border: none;
+  border-left: 5px solid transparent;
+  border-radius: 6px;
+  position: relative;
+  padding-left: 3rem;
+  box-shadow: 0 1px 3px rgba(74, 32, 54, 0.08);
+}
+.alert-icon {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+}
+.alert-danger {
+  border-left-color: var(--bubblegum);
+  background-color: #fdeef3;
+  background-image: repeating-linear-gradient(45deg, rgba(231, 84, 128, 0.06) 0px, rgba(231, 84, 128, 0.06) 2px, transparent 2px, transparent 12px);
+  color: #7a1f42;
+}
+.alert-danger .alert-icon { color: var(--bubblegum); }
+.alert-warning {
+  border-left-color: #c8871e;
+  background-color: #fdf6ea;
+  background-image: repeating-linear-gradient(45deg, rgba(200, 135, 30, 0.06) 0px, rgba(200, 135, 30, 0.06) 2px, transparent 2px, transparent 12px);
+  color: #6b4a10;
+}
+.alert-warning .alert-icon { color: #c8871e; }
+.alert-info {
+  border-left-color: var(--steel);
+  background-color: #f7f0f3;
+  color: #5c4650;
+}
+.alert-info .alert-icon { color: var(--steel); }
+
+[data-theme="dark"] .alert-danger { background-color: #3a2530; color: #f7c9da; }
+[data-theme="dark"] .alert-warning { background-color: #3a3020; color: #f0d9a0; }
+[data-theme="dark"] .alert-info { background-color: var(--sidebar-bg); color: var(--text-main); }
