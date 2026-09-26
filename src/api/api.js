@@ -14,7 +14,7 @@ import { mockReturns } from "../data/mockReturns";
 import { mockExpenses } from "../data/mockExpenses";
 
 const USE_MOCK = false; // now pointing at the real backend
-const BASE_URL = "http://localhost:5000/api";
+const BASE_URL = import.meta.env.PROD ? "/api" : "http://localhost:5000/api";
 
 // Attaches the login token (if we have one) to every request that needs it.
 // The backend's requireAuth middleware checks for this exact header shape.
@@ -348,7 +348,7 @@ export async function receivePurchase(poId, performedBy) {
     if (supplier) supplier.amountOwed += po.totalCost;
     return { success: true };
   }
-  const res = await fetch(`${BASE_URL}/purchases/${poId}/receive`, { method: "POST" });
+ const res = await fetch(`${BASE_URL}/purchases/${poId}/receive`, { method: "POST", headers: authHeaders() });
   return res.json();
 }
 
