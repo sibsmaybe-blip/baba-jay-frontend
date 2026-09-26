@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import authRoutes from "./routes/auth.js";
 import usersRoutes from "./routes/users.js";
@@ -20,6 +22,7 @@ import dashboardRoutes from "./routes/dashboard.js";
 
 dotenv.config();
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 app.use(cors());
@@ -42,6 +45,23 @@ app.use("/api/expenses", expensesRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/audit", auditRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+
+// --- Serve the built frontend ---
+// The build step copies the frontend's dist/ folder here as backend/public.
+const publicPath = path.join(__dirname, "../public");
+app.use(express.static(publicPath));
+
+// SPA fallback: React Router handles routes like /pos or /customers
+// entirely in the browser — but if someone refreshes the page while on
+// /pos, the browser asks the SERVER for /pos directly, and there's no
+// real file called that. This sends index.html for any GET request that
+// isn't an API call, and React Router takes over from there.
+app.use((req, res, next) => {
+  if (req.method !== "GET" || req.path.startsWith("/api")) return next();
+  res.sendFile(path.join(publicPath, "index.html"), (err) => {
+    if (err) next(err);
+  });
+});
 
 // Catches any error thrown/rejected in a route (including DB connection
 // failures) and returns clean JSON instead of Express's default HTML
