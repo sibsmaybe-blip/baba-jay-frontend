@@ -26,6 +26,13 @@ export function AuthProvider({ children }) {
     if (result.success) {
       setCurrentUser(result.user);
       localStorage.setItem("baba-jay-user", JSON.stringify(result.user));
+      // The real backend's login response includes a token — save it
+      // separately so api.js's authHeaders() can attach it to every
+      // other request. The mock login never returns one, so this is
+      // skipped harmlessly while USE_MOCK was still true.
+      if (result.token) {
+        localStorage.setItem("baba-jay-token", result.token);
+      }
     }
     return result;
   }
@@ -33,6 +40,7 @@ export function AuthProvider({ children }) {
   function logout() {
     setCurrentUser(null);
     localStorage.removeItem("baba-jay-user");
+    localStorage.removeItem("baba-jay-token");
   }
 
   return (

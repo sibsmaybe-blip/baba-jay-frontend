@@ -13,24 +13,31 @@ import { mockQuotations, quotationCounter } from "../data/mockQuotations";
 import { mockReturns } from "../data/mockReturns";
 import { mockExpenses } from "../data/mockExpenses";
 
-const USE_MOCK = true; // flip to false once a real backend exists
-const BASE_URL = "http://localhost:5000/api"; // your future Node/Express or Django backend
+const USE_MOCK = false; // now pointing at the real backend
+const BASE_URL = "http://localhost:5000/api";
+
+// Attaches the login token (if we have one) to every request that needs it.
+// The backend's requireAuth middleware checks for this exact header shape.
+function authHeaders(extra = {}) {
+  const token = localStorage.getItem("baba-jay-token");
+  return { ...extra, ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+}
 
 export async function getDashboardStats() {
   if (USE_MOCK) return mockDashboardStats;
-  const res = await fetch(`${BASE_URL}/dashboard/stats`);
+  const res = await fetch(`${BASE_URL}/dashboard/stats`, { headers: authHeaders() });
   return res.json();
 }
 
 export async function getLowStockParts() {
   if (USE_MOCK) return mockLowStockParts;
-  const res = await fetch(`${BASE_URL}/inventory/low-stock`);
+  const res = await fetch(`${BASE_URL}/inventory/low-stock`, { headers: authHeaders() });
   return res.json();
 }
 
 export async function getRecentTransactions() {
   if (USE_MOCK) return mockRecentTransactions;
-  const res = await fetch(`${BASE_URL}/sales/recent`);
+  const res = await fetch(`${BASE_URL}/sales/recent`, { headers: authHeaders() });
   return res.json();
 }
 
@@ -49,7 +56,7 @@ export async function login(username, password) {
   }
   const res = await fetch(`${BASE_URL}/auth/login`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ username, password }),
   });
   return res.json();
@@ -59,7 +66,7 @@ export async function login(username, password) {
 
 export async function getUsers() {
   if (USE_MOCK) return mockUsers.map(({ password: _pw, ...u }) => u);
-  const res = await fetch(`${BASE_URL}/users`);
+  const res = await fetch(`${BASE_URL}/users`, { headers: authHeaders() });
   return res.json();
 }
 
@@ -72,7 +79,7 @@ export async function createUser(userData) {
   }
   const res = await fetch(`${BASE_URL}/users`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(userData),
   });
   return res.json();
@@ -87,7 +94,7 @@ export async function updateUser(id, changes) {
   }
   const res = await fetch(`${BASE_URL}/users/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(changes),
   });
   return res.json();
@@ -99,7 +106,7 @@ export async function deleteUser(id) {
     if (index !== -1) mockUsers.splice(index, 1);
     return { success: true };
   }
-  const res = await fetch(`${BASE_URL}/users/${id}`, { method: "DELETE" });
+  const res = await fetch(`${BASE_URL}/users/${id}`, { method: "DELETE", headers: authHeaders() });
   return res.json();
 }
 
@@ -112,7 +119,7 @@ export async function createSale(saleData) {
   }
   const res = await fetch(`${BASE_URL}/sales`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(saleData),
   });
   return res.json();
@@ -122,7 +129,7 @@ export async function createSale(saleData) {
 
 export async function getParts() {
   if (USE_MOCK) return [...mockParts];
-  const res = await fetch(`${BASE_URL}/parts`);
+  const res = await fetch(`${BASE_URL}/parts`, { headers: authHeaders() });
   return res.json();
 }
 
@@ -134,7 +141,7 @@ export async function createPart(partData) {
   }
   const res = await fetch(`${BASE_URL}/parts`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(partData),
   });
   return res.json();
@@ -149,7 +156,7 @@ export async function updatePart(id, changes) {
   }
   const res = await fetch(`${BASE_URL}/parts/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(changes),
   });
   return res.json();
@@ -161,7 +168,7 @@ export async function deletePart(id) {
     if (index !== -1) mockParts.splice(index, 1);
     return { success: true };
   }
-  const res = await fetch(`${BASE_URL}/parts/${id}`, { method: "DELETE" });
+  const res = await fetch(`${BASE_URL}/parts/${id}`, { method: "DELETE", headers: authHeaders() });
   return res.json();
 }
 
@@ -184,7 +191,7 @@ export async function adjustStock(partId, quantityChange, reason, performedBy) {
   }
   const res = await fetch(`${BASE_URL}/inventory/adjust`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ partId, quantityChange, reason, performedBy }),
   });
   return res.json();
@@ -228,7 +235,7 @@ export async function completeSale({ items, customer, paymentMethod, discount, c
   }
   const res = await fetch(`${BASE_URL}/sales`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ items, customer, paymentMethod, discount, cashTendered }),
   });
   return res.json();
@@ -238,7 +245,7 @@ export async function completeSale({ items, customer, paymentMethod, discount, c
 
 export async function getCustomers() {
   if (USE_MOCK) return [...mockCustomers];
-  const res = await fetch(`${BASE_URL}/customers`);
+  const res = await fetch(`${BASE_URL}/customers`, { headers: authHeaders() });
   return res.json();
 }
 
@@ -250,7 +257,7 @@ export async function createCustomer(data) {
   }
   const res = await fetch(`${BASE_URL}/customers`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(data),
   });
   return res.json();
@@ -259,7 +266,7 @@ export async function createCustomer(data) {
 // Purchase history for one customer — pulled from completed sales.
 export async function getCustomerPurchases(customerName) {
   if (USE_MOCK) return mockSales.filter((s) => s.customer === customerName);
-  const res = await fetch(`${BASE_URL}/customers/${encodeURIComponent(customerName)}/purchases`);
+  const res = await fetch(`${BASE_URL}/customers/${encodeURIComponent(customerName)}/purchases`, { headers: authHeaders() });
   return res.json();
 }
 
@@ -267,7 +274,7 @@ export async function getCustomerPurchases(customerName) {
 
 export async function getSuppliers() {
   if (USE_MOCK) return [...mockSuppliers];
-  const res = await fetch(`${BASE_URL}/suppliers`);
+  const res = await fetch(`${BASE_URL}/suppliers`, { headers: authHeaders() });
   return res.json();
 }
 
@@ -279,7 +286,7 @@ export async function createSupplier(data) {
   }
   const res = await fetch(`${BASE_URL}/suppliers`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(data),
   });
   return res.json();
@@ -289,7 +296,7 @@ export async function createSupplier(data) {
 
 export async function getPurchases() {
   if (USE_MOCK) return [...mockPurchases];
-  const res = await fetch(`${BASE_URL}/purchases`);
+  const res = await fetch(`${BASE_URL}/purchases`, { headers: authHeaders() });
   return res.json();
 }
 
@@ -310,7 +317,7 @@ export async function createPurchaseOrder({ supplierId, supplierName, items }) {
   }
   const res = await fetch(`${BASE_URL}/purchases`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ supplierId, supplierName, items }),
   });
   return res.json();
@@ -349,7 +356,7 @@ export async function receivePurchase(poId, performedBy) {
 
 export async function getQuotations() {
   if (USE_MOCK) return [...mockQuotations];
-  const res = await fetch(`${BASE_URL}/quotations`);
+  const res = await fetch(`${BASE_URL}/quotations`, { headers: authHeaders() });
   return res.json();
 }
 
@@ -370,7 +377,7 @@ export async function createQuotation({ customer, items }) {
   }
   const res = await fetch(`${BASE_URL}/quotations`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ customer, items }),
   });
   return res.json();
@@ -395,7 +402,7 @@ export async function convertQuotation(quotationId, paymentMethod, performedBy) 
   }
   const res = await fetch(`${BASE_URL}/quotations/${quotationId}/convert`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ paymentMethod }),
   });
   return res.json();
@@ -405,7 +412,7 @@ export async function convertQuotation(quotationId, paymentMethod, performedBy) 
 
 export async function getInvoices() {
   if (USE_MOCK) return [...mockSales];
-  const res = await fetch(`${BASE_URL}/invoices`);
+  const res = await fetch(`${BASE_URL}/invoices`, { headers: authHeaders() });
   return res.json();
 }
 
@@ -413,7 +420,7 @@ export async function getInvoices() {
 
 export async function getReturns() {
   if (USE_MOCK) return [...mockReturns];
-  const res = await fetch(`${BASE_URL}/returns`);
+  const res = await fetch(`${BASE_URL}/returns`, { headers: authHeaders() });
   return res.json();
 }
 
@@ -453,7 +460,7 @@ export async function createReturn({ invoiceId, partId, partName, qty, reason, p
   }
   const res = await fetch(`${BASE_URL}/returns`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ invoiceId, partId, qty, reason }),
   });
   return res.json();
@@ -463,7 +470,7 @@ export async function createReturn({ invoiceId, partId, partName, qty, reason, p
 
 export async function getExpenses() {
   if (USE_MOCK) return [...mockExpenses];
-  const res = await fetch(`${BASE_URL}/expenses`);
+  const res = await fetch(`${BASE_URL}/expenses`, { headers: authHeaders() });
   return res.json();
 }
 
@@ -475,7 +482,7 @@ export async function createExpense(data) {
   }
   const res = await fetch(`${BASE_URL}/expenses`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(data),
   });
   return res.json();
@@ -512,7 +519,7 @@ export async function getReportsData() {
       outstandingPayments,
     };
   }
-  const res = await fetch(`${BASE_URL}/reports/summary`);
+  const res = await fetch(`${BASE_URL}/reports/summary`, { headers: authHeaders() });
   return res.json();
 }
 
@@ -520,6 +527,6 @@ export async function getReportsData() {
 
 export async function getStockMovements() {
   if (USE_MOCK) return [...mockStockMovements];
-  const res = await fetch(`${BASE_URL}/audit/movements`);
+  const res = await fetch(`${BASE_URL}/audit/movements`, { headers: authHeaders() });
   return res.json();
 }
